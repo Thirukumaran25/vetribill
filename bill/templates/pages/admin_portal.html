@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-4 sm:mb-6">
+    <h2 class="text-2xl sm:text-3xl font-bold font-heading text-textmain">Dashboard</h2>
+    <p class="text-xs sm:text-sm text-gray-500 mt-1">Welcome back! Here's your business overview.</p>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+    
+    <div class="grad-blue rounded-2xl p-5 sm:p-6 text-white shadow-md relative overflow-hidden">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs sm:text-sm font-medium opacity-90 mb-1">Today Sales</p>
+                <h3 class="text-2xl sm:text-3xl font-bold font-heading">₹{{ today_sales|floatformat:0 }}</h3>
+            </div>
+            <div class="bg-white/20 p-2 rounded-lg shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </div>
+        </div>
+        <p class="text-xs sm:text-sm mt-3 sm:mt-4 opacity-90">Daily performance</p>
+    </div>
+
+    <div class="grad-red rounded-2xl p-5 sm:p-6 text-white shadow-md relative overflow-hidden">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs sm:text-sm font-medium opacity-90 mb-1">Pending Payments</p>
+                <h3 class="text-2xl sm:text-3xl font-bold font-heading">₹{{ pending_payments_amount|floatformat:0 }}</h3>
+            </div>
+            <div class="bg-white/20 p-2 rounded-lg shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
+        <p class="text-xs sm:text-sm mt-3 sm:mt-4 opacity-90">{{ pending_payments_count }} invoices</p>
+    </div>
+
+    <div class="grad-orange rounded-2xl p-5 sm:p-6 text-white shadow-md relative overflow-hidden">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs sm:text-sm font-medium opacity-90 mb-1">Total Products</p>
+                <h3 class="text-2xl sm:text-3xl font-bold font-heading">{{ total_products_count }}</h3>
+            </div>
+            <div class="bg-white/20 p-2 rounded-lg shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            </div>
+        </div>
+        <p class="text-xs sm:text-sm mt-3 sm:mt-4 opacity-90">{{ total_categories_count }} categories</p>
+    </div>
+
+    <div class="grad-purple rounded-2xl p-5 sm:p-6 text-white shadow-md relative overflow-hidden">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-xs sm:text-sm font-medium opacity-90 mb-1">Low stock Alert</p>
+                <h3 class="text-2xl sm:text-3xl font-bold font-heading">{{ low_stock_products|length }}</h3>
+            </div>
+            <div class="bg-white/20 p-2 rounded-lg border border-white/30 shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+        </div>
+        <p class="text-xs sm:text-sm mt-3 sm:mt-4 opacity-90">Needs attention</p>
+    </div>
+</div>
+
+<div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-8">
+    <a href="{% url 'billing_pos' %}" class="w-full sm:w-auto justify-center flex items-center bg-secondary hover:bg-secondary-dark text-white px-5 py-3 sm:py-2.5 rounded-xl font-medium transition-colors shadow-sm">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Create Invoice
+    </a>
+    <a href="{% url 'inventory_list' %}" class="w-full sm:w-auto justify-center flex items-center bg-white border border-stroke text-textmain hover:bg-gray-50 px-5 py-3 sm:py-2.5 rounded-xl font-medium transition-colors shadow-sm">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+        Manage Inventory
+    </a>
+    <a href="{% url 'sales_report' %}" class="w-full sm:w-auto justify-center flex items-center bg-white border border-stroke text-textmain hover:bg-gray-50 px-5 py-3 sm:py-2.5 rounded-xl font-medium transition-colors shadow-sm">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        View Reports
+    </a>
+</div>
+
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-stroke mb-8">
+    <h3 class="text-lg sm:text-xl font-bold font-heading text-textmain mb-4 sm:mb-6">Sales Analytics</h3>
+    <div class="w-full h-[250px] sm:h-[350px]">
+        <canvas id="salesChart"></canvas>
+    </div>
+    <div class="flex justify-center items-center mt-4 space-x-6">
+        <div class="flex items-center">
+            <span class="w-3 h-3 bg-secondary rounded-sm mr-2"></span>
+            <span class="text-xs sm:text-sm text-gray-600 font-medium">Sales</span>
+        </div>
+        <div class="flex items-center">
+            <span class="w-3 h-3 bg-blue-600 rounded-sm mr-2"></span>
+            <span class="text-xs sm:text-sm text-gray-600 font-medium">Revenue</span>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-stroke">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
+        <h3 class="text-lg sm:text-xl font-bold font-heading text-textmain">Recent Invoices</h3>
+        <a href="{% url 'invoice_list' %}" class="text-secondary hover:text-secondary-dark font-medium text-sm flex items-center w-fit">
+            View all 
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </a>
+    </div>
+    <p class="text-xs sm:text-sm text-gray-500 mb-4 sm:-mt-4">Latest Customer Transactions</p>
+    
+    <div class="overflow-x-auto w-full">
+        <table class="w-full text-left border-collapse min-w-[700px]">
+            <thead>
+                <tr class="border-b border-stroke text-sm font-bold text-textmain">
+                    <th class="py-4 px-4 font-heading whitespace-nowrap">Invoice ID</th>
+                    <th class="py-4 px-4 font-heading whitespace-nowrap">Customer Name</th>
+                    <th class="py-4 px-4 font-heading whitespace-nowrap">Date</th>
+                    <th class="py-4 px-4 font-heading whitespace-nowrap">Time</th>
+                    <th class="py-4 px-4 font-heading whitespace-nowrap">Amount</th>
+                    <th class="py-4 px-4 font-heading whitespace-nowrap">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in recent_activities %}
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-4 px-4 text-sm font-medium text-gray-700 whitespace-nowrap">{{ invoice.invoice_number }}</td>
+                    <td class="py-4 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.customer.name|default:"Walk-in" }}</td>
+                    <td class="py-4 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.created_at|date:"Y-m-d" }}</td>
+                    <td class="py-4 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.created_at|time:"H:i A" }}</td>
+                    <td class="py-4 px-4 text-sm font-medium text-gray-700 whitespace-nowrap">₹{{ invoice.grand_total|floatformat:0 }}</td>
+                    <td class="py-4 px-4 text-sm whitespace-nowrap">
+                        {% if invoice.status == 'Paid' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#D1FAE5] text-[#10B981]">Paid</span>
+                        {% elif invoice.status == 'Pending' %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#FFEDD5] text-[#F97316]">Pending</span>
+                        {% else %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#FEE2E2] text-[#EF4444]">{{ invoice.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-8 text-center text-gray-500">No recent transactions recorded.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        const barGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        barGradient.addColorStop(0, 'rgba(249, 115, 22, 0.8)'); 
+        barGradient.addColorStop(1, 'rgba(249, 115, 22, 0.1)'); 
+
+        // Dynamic JSON parsed variables directly from Django
+        const labels = {{ chart_labels|safe }};
+        const salesData = {{ chart_sales|safe }};
+        const revenueData = {{ chart_revenue|safe }};
+
+        new Chart(ctx, {
+            type: 'bar', 
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        type: 'line',
+                        label: 'Revenue',
+                        data: revenueData,
+                        borderColor: '#F97316', 
+                        backgroundColor: '#FFFFFF',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#F97316',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.4 
+                    },
+                    {
+                        type: 'bar',
+                        label: 'Sales',
+                        data: salesData,
+                        backgroundColor: barGradient,
+                        borderRadius: {
+                            topLeft: 8,
+                            topRight: 8
+                        },
+                        borderSkipped: false,
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false 
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#111827',
+                        bodyColor: '#4B5563',
+                        borderColor: '#E5E7EB',
+                        borderWidth: 1,
+                        padding: 10,
+                        boxPadding: 4
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E7EB',
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#6B7280',
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#6B7280',
+                            font: {
+                                size: window.innerWidth < 640 ? 10 : 12
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

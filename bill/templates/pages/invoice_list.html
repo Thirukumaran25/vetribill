@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-3xl font-bold font-heading text-[#1F2937]">Invoices</h2>
+    <p class="text-sm text-gray-500 mt-1">Manage all your invoices</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#E5E7EB] flex flex-col justify-center h-36">
+        <p class="text-sm text-gray-800 font-medium mb-3">Total Invoices</p>
+        <h3 class="text-3xl font-body text-gray-900 mb-3">{{ kpi.total_count }}</h3>
+        <p class="text-sm text-gray-800 font-medium">₹{{ kpi.total_amount|floatformat:0 }}</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#E5E7EB] flex flex-col justify-center h-36">
+        <p class="text-sm text-gray-800 font-medium mb-3">Paid Amount</p>
+        <h3 class="text-3xl font-body text-[#10B981] mb-3">₹{{ kpi.paid_amount|floatformat:0 }}</h3>
+        <p class="text-sm text-gray-800 font-medium">{{ kpi.paid_count }} invoices</p>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-[#E5E7EB] flex flex-col justify-center h-36">
+        <p class="text-sm text-gray-800 font-medium mb-3">Pending Amount</p>
+        <h3 class="text-3xl font-body text-[#F97316] mb-3">₹{{ kpi.pending_amount|floatformat:0 }}</h3>
+        <p class="text-sm text-gray-800 font-medium">{{ kpi.pending_count }} invoices</p>
+    </div>
+
+</div>
+
+<div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+    <div class="relative flex-1 w-full">
+        <svg class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input type="text" id="searchInput" placeholder="Search by Invoice ID or Customer Name..." 
+            class="w-full pl-12 pr-4 py-3 bg-white border border-[#E5E7EB] rounded-lg focus:outline-none focus:border-secondary transition-colors text-sm text-gray-700 shadow-sm">
+    </div>
+    <div class="flex w-full md:w-auto">
+        <div class="relative w-full md:w-auto">
+            <select id="statusFilter" class="w-full md:w-auto py-3 px-6 pr-10 bg-white border border-[#E5E7EB] rounded-lg text-sm text-gray-700 outline-none focus:border-secondary min-w-[120px] cursor-pointer appearance-none shadow-sm font-medium">
+                <option value="All">All Status</option>
+                <option value="Paid">Paid</option>
+                <option value="Pending">Pending</option>
+                <option value="Overdue">Overdue</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-[#E5E7EB]">
+    
+    <div class="mb-6 md:mb-8">
+        <h3 class="text-2xl font-bold font-heading text-[#1F2937]">Invoices</h3>
+        <p class="text-sm text-gray-600 mt-1">Customer Transactions</p>
+    </div>
+
+    <div class="overflow-x-auto w-full">
+        <table class="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+                <tr class="border-b-2 border-gray-100 text-sm font-bold text-[#1F2937]">
+                    <th class="pb-4 px-4 font-body whitespace-nowrap">Invoice ID</th>
+                    <th class="pb-4 px-4 font-body whitespace-nowrap">Customer Name</th>
+                    <th class="pb-4 px-4 font-body whitespace-nowrap">Date</th>
+                    <th class="pb-4 px-4 font-body whitespace-nowrap">Time</th>
+                    <th class="pb-4 px-4 font-body whitespace-nowrap">Amount</th>
+                    <th class="pb-4 px-4 font-body whitespace-nowrap">Status & Details</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTableBody">
+                {% for invoice in invoices %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors invoice-row" data-status="{{ invoice.status }}">
+                    <td class="py-5 px-4 text-sm text-gray-700 font-medium invoice-id whitespace-nowrap">{{ invoice.invoice_number }}</td>
+                    <td class="py-5 px-4 text-sm text-gray-700 customer-name whitespace-nowrap">{{ invoice.customer_name }}</td>
+                    <td class="py-5 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.date|date:"Y-m-d" }}</td>
+                    <td class="py-5 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.date|time:"h:i A" }}</td>
+                    <td class="py-5 px-4 text-sm text-gray-700 font-medium whitespace-nowrap">₹{{ invoice.total_amount|floatformat:0 }}</td>
+                    <td class="py-5 px-4 text-sm whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            {% if invoice.status == 'Paid' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#D1FAE5] text-[#10B981] w-20 justify-center">Paid</span>
+                            {% elif invoice.status == 'Pending' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#FFEDD5] text-[#F97316] w-20 justify-center">Pending</span>
+                            {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#FEE2E2] text-[#EF4444] w-20 justify-center">{{ invoice.status }}</span>
+                            {% endif %}
+                            
+                            <button onclick="openInvoiceModal('{{ invoice.invoice_number }}', '{{ invoice.customer_name|escapejs }}', '{{ invoice.date|date:"d M Y, h:i A" }}', '{{ invoice.total_amount|floatformat:0 }}', '{{ invoice.status }}', '{{ invoice.items_json|escapejs }}')" 
+                                class="text-gray-400 hover:text-secondary transition-colors p-1" title="View Details">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr id="emptyRow">
+                    <td colspan="6" class="py-8 text-center text-gray-500">No invoices found.</td>
+                </tr>
+                {% endfor %}
+                <tr id="noResultsRow" class="hidden">
+                    <td colspan="6" class="py-8 text-center text-gray-500">No invoices match your current filters.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 pt-4 border-t border-[#E5E7EB]" id="paginationControls">
+        <div class="text-sm text-gray-500 w-full sm:w-auto text-center sm:text-left">
+            Showing <span id="pageStart" class="font-bold text-gray-700">0</span> to <span id="pageEnd" class="font-bold text-gray-700">0</span> of <span id="totalRows" class="font-bold text-gray-700">0</span> entries
+        </div>
+        <div class="flex items-center gap-2 overflow-x-auto w-full sm:w-auto justify-center sm:justify-end pb-1">
+            <button id="prevPage" class="px-3 py-1.5 border border-[#E5E7EB] rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition">Prev</button>
+            <div id="pageNumbers" class="flex items-center gap-1"></div>
+            <button id="nextPage" class="px-3 py-1.5 border border-[#E5E7EB] rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition">Next</button>
+        </div>
+    </div>
+</div>
+
+<div id="viewInvoiceModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-sm transition-opacity p-4">
+    <div class="bg-white rounded-2xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl relative overflow-y-auto max-h-[90vh]">
+        
+        <div class="flex justify-between items-center mb-6 border-b border-[#E5E7EB] pb-4">
+            <h2 class="text-2xl font-bold font-heading text-[#1F2937]">Invoice Details</h2>
+            <button onclick="closeModal('viewInvoiceModal')" class="text-gray-400 hover:text-gray-600 focus:outline-none bg-gray-50 hover:bg-gray-100 p-2 rounded-lg transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+            <div class="bg-gray-50 p-4 rounded-xl border border-[#E5E7EB]">
+                <p class="text-gray-500 mb-1">Invoice ID</p>
+                <p id="modalInvId" class="font-bold text-[#1F2937]"></p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-[#E5E7EB]">
+                <p class="text-gray-500 mb-1">Status</p>
+                <p id="modalStatus" class="font-bold text-[#1F2937]"></p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-[#E5E7EB]">
+                <p class="text-gray-500 mb-1">Customer</p>
+                <p id="modalCustName" class="font-bold text-[#1F2937]"></p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-[#E5E7EB]">
+                <p class="text-gray-500 mb-1">Date & Time</p>
+                <p id="modalDate" class="font-bold text-[#1F2937]"></p>
+            </div>
+        </div>
+
+        <h4 class="font-bold text-[#1F2937] mb-3">Purchased Items</h4>
+        <div class="border border-[#E5E7EB] rounded-xl overflow-hidden mb-6">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead class="bg-gray-50 border-b border-[#E5E7EB]">
+                    <tr>
+                        <th class="py-3 px-4 font-bold text-gray-600">Item</th>
+                        <th class="py-3 px-4 font-bold text-gray-600 text-center">Qty</th>
+                        <th class="py-3 px-4 font-bold text-gray-600 text-right">Price</th>
+                        <th class="py-3 px-4 font-bold text-gray-600 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="modalItemsBody" class="divide-y divide-[#E5E7EB]">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-between items-center bg-orange-50 p-4 rounded-xl border border-orange-100 text-[#1F2937]">
+            <span class="font-bold text-lg">Grand Total</span>
+            <span class="font-bold text-2xl text-[#F97316]">₹<span id="modalTotal"></span></span>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // --- Modal Logic ---
+    function openInvoiceModal(invId, custName, date, total, status, itemsJsonStr) {
+        document.getElementById('modalInvId').textContent = invId;
+        document.getElementById('modalCustName').textContent = custName;
+        document.getElementById('modalDate').textContent = date;
+        document.getElementById('modalTotal').textContent = total;
+        
+        const statusEl = document.getElementById('modalStatus');
+        statusEl.textContent = status;
+        if(status === 'Paid') statusEl.className = 'font-bold text-[#10B981]';
+        else if(status === 'Pending') statusEl.className = 'font-bold text-[#F97316]';
+        else statusEl.className = 'font-bold text-[#EF4444]';
+
+        const tbody = document.getElementById('modalItemsBody');
+        tbody.innerHTML = '';
+        
+        try {
+            const items = JSON.parse(itemsJsonStr);
+            items.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 font-medium">${item.name}</td>
+                        <td class="py-3 px-4 text-center">${item.qty}</td>
+                        <td class="py-3 px-4 text-right text-gray-600">₹${item.price}</td>
+                        <td class="py-3 px-4 text-right font-medium">₹${item.total}</td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-red-500">Error loading items</td></tr>';
+        }
+
+        const modal = document.getElementById('viewInvoiceModal');
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.add('opacity-100'), 10);
+    }
+
+    function closeModal(modalID) {
+        const modal = document.getElementById(modalID);
+        modal.classList.add('hidden');
+    }
+
+    // --- Search, Filter & Pagination Logic ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        
+        const allRows = Array.from(document.querySelectorAll('.invoice-row'));
+        const noResultsRow = document.getElementById('noResultsRow');
+        
+        // Pagination Variables
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let filteredRows = [];
+
+        function filterAndPaginate() {
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const filterStatus = statusFilter ? statusFilter.value : 'All';
+
+            filteredRows = [];
+
+            // 1. Filter rows
+            allRows.forEach(row => {
+                const invoiceId = row.querySelector('.invoice-id').textContent.toLowerCase();
+                const customerName = row.querySelector('.customer-name').textContent.toLowerCase();
+                const rowStatus = row.getAttribute('data-status');
+
+                const matchesSearch = invoiceId.includes(searchTerm) || customerName.includes(searchTerm);
+                const matchesStatus = (filterStatus === 'All') || (rowStatus === filterStatus);
+
+                if (matchesSearch && matchesStatus) {
+                    filteredRows.push(row);
+                }
+                row.style.display = 'none'; // Hide all initially
+            });
+
+            // Handle empty search results
+            if (filteredRows.length === 0 && allRows.length > 0) {
+                noResultsRow.classList.remove('hidden');
+            } else if (noResultsRow) {
+                noResultsRow.classList.add('hidden');
+            }
+
+            // 2. Adjust Pagination
+            currentPage = 1;
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalRows = filteredRows.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, totalRows);
+
+            // Show exactly the rows for the current page
+            filteredRows.forEach((row, index) => {
+                if (index >= start && index < end) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update Labels
+            document.getElementById('pageStart').textContent = totalRows === 0 ? 0 : start + 1;
+            document.getElementById('pageEnd').textContent = end;
+            document.getElementById('totalRows').textContent = totalRows;
+
+            // Update Buttons
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            // Render Page Numbers
+            const pageContainer = document.getElementById('pageNumbers');
+            pageContainer.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                // Show first, last, and pages adjacent to current page
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const btn = document.createElement('button');
+                    btn.className = `px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition ${i === currentPage ? 'bg-secondary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 border border-transparent'}`;
+                    btn.textContent = i;
+                    btn.onclick = () => { currentPage = i; renderPagination(); };
+                    pageContainer.appendChild(btn);
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.className = 'px-1 text-gray-400 text-xs sm:text-sm';
+                    pageContainer.appendChild(dots);
+                }
+            }
+        }
+
+        // Attach listeners
+        if(searchInput) searchInput.addEventListener('keyup', filterAndPaginate);
+        if(statusFilter) statusFilter.addEventListener('change', filterAndPaginate);
+        
+        document.getElementById('prevPage').addEventListener('click', () => { 
+            if (currentPage > 1) { currentPage--; renderPagination(); }
+        });
+        
+        document.getElementById('nextPage').addEventListener('click', () => { 
+            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+            if (currentPage < totalPages) { currentPage++; renderPagination(); }
+        });
+
+        // Initialize on load
+        if (allRows.length > 0) {
+            filterAndPaginate();
+        } else {
+            // Hide pagination if table is completely empty
+            document.getElementById('paginationControls').style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

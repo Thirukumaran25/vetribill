@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold font-heading text-textmain">Record Purchase</h2>
+            <p class="text-gray-500 text-sm mt-1">Log incoming stock from suppliers into branch inventory.</p>
+        </div>
+        <a href="{% url 'purchase_list' %}" class="text-secondary font-medium hover:text-secondary-dark">← Back to Purchases</a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-stroke overflow-hidden">
+        <form method="POST" action="#">
+            {% csrf_token %}
+            
+            <div class="p-6 border-b border-stroke bg-gray-50 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-textmain mb-2">Supplier*</label>
+                    <select class="w-full bg-white border border-stroke text-gray-700 py-2.5 px-3 rounded-lg focus:outline-none focus:border-secondary">
+                        <option value="">Select Supplier...</option>
+                        <option value="1">ABC Distributors</option>
+                        <option value="2">MegaCorp Wholesale</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-textmain mb-2">Reference / Invoice No.*</label>
+                    <input type="text" placeholder="e.g. INV-9921" class="w-full bg-white border border-stroke text-gray-700 py-2.5 px-3 rounded-lg focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-textmain mb-2">Purchase Date*</label>
+                    <input type="date" class="w-full bg-white border border-stroke text-gray-700 py-2.5 px-3 rounded-lg focus:outline-none focus:border-secondary">
+                </div>
+            </div>
+
+            <div class="p-6">
+                <h3 class="font-bold text-textmain mb-4 font-heading">Line Items</h3>
+                <table class="w-full text-left border-collapse mb-4">
+                    <thead>
+                        <tr class="text-gray-500 border-b border-stroke text-sm">
+                            <th class="pb-3 w-1/2">Product</th>
+                            <th class="pb-3 w-1/6">Quantity</th>
+                            <th class="pb-3 w-1/6">Unit Cost (₹)</th>
+                            <th class="pb-3 w-1/6 text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4">
+                                <select class="w-full bg-bgmain border border-stroke text-sm py-2 px-3 rounded-lg focus:outline-none focus:border-secondary">
+                                    <option>Select Product...</option>
+                                    <option>Premium Rice 25kg (SKU-101)</option>
+                                    <option>Refined Oil 1L (SKU-102)</option>
+                                </select>
+                            </td>
+                            <td class="py-3 pr-4"><input type="number" value="10" class="w-full bg-bgmain border border-stroke text-sm py-2 px-3 rounded-lg text-center"></td>
+                            <td class="py-3 pr-4"><input type="number" value="1200.00" class="w-full bg-bgmain border border-stroke text-sm py-2 px-3 rounded-lg text-right"></td>
+                            <td class="py-3 font-bold text-right">₹12,000.00</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="py-3 pr-4">
+                                <select class="w-full bg-bgmain border border-stroke text-sm py-2 px-3 rounded-lg focus:outline-none focus:border-secondary">
+                                    <option>Select Product...</option>
+                                    <option selected>Refined Oil 1L (SKU-102)</option>
+                                </select>
+                            </td>
+                            <td class="py-3 pr-4"><input type="number" value="50" class="w-full bg-bgmain border border-stroke text-sm py-2 px-3 rounded-lg text-center"></td>
+                            <td class="py-3 pr-4"><input type="number" value="145.00" class="w-full bg-bgmain border border-stroke text-sm py-2 px-3 rounded-lg text-right"></td>
+                            <td class="py-3 font-bold text-right">₹7,250.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="text-secondary font-bold text-sm hover:underline">+ Add Another Product</button>
+            </div>
+
+            <div class="p-6 border-t border-stroke bg-gray-50 flex justify-between items-center">
+                <div class="text-gray-500 text-sm">
+                    Total Amount: <span class="text-2xl font-bold font-heading text-textmain ml-2">₹19,250.00</span>
+                </div>
+                <div class="space-x-3">
+                    <button type="button" class="px-6 py-2 border border-stroke text-gray-600 font-bold rounded-lg hover:bg-gray-100 transition">Cancel</button>
+                    <button type="submit" class="px-6 py-2 bg-secondary text-white font-bold rounded-lg shadow hover:bg-secondary-dark transition">Submit to Manager</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vetri RMS{% endblock %}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2B2B2B',
+                        secondary: { DEFAULT: '#F97316', dark: '#EA580C' },
+                        textmain: '#111827',
+                        bgmain: '#F3F4F6',
+                        stroke: '#D3D3D3',
+                        success: { bg: '#D1FAE5', text: '#209C5C' },
+                        danger: '#FF0000',
+                        warning: '#FB923C'
+                    },
+                    fontFamily: {
+                        heading: ['Montserrat', 'sans-serif'],
+                        body: ['Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        h1, h2, h3, h4, h5, h6 { font-family: 'Montserrat', sans-serif; }
+        body { font-family: 'Roboto', sans-serif; }
+        .grad-blue { background: linear-gradient(135deg, #6EA8FF 0%, #3F73CF 100%); }
+        .grad-purple { background: linear-gradient(135deg, #3F73CF 0%, #6D28D9 100%); }
+        .grad-red { background: linear-gradient(135deg, #FF9A9A 0%, #E86A6B 100%); }
+        .grad-orange { background: linear-gradient(135deg, #FFB985 0%, #F08E4F 100%); }
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 10px; }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-bgmain text-textmain h-screen flex overflow-hidden">
+
+    <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden transition-opacity duration-300 opacity-0 md:hidden"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-primary text-white flex flex-col rounded-tr-3xl rounded-br-3xl shadow-lg transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0">
+        <div class="p-6 flex items-center justify-between border-b border-gray-700">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                {% if site_settings.login_logo %}
+                    <img src="{{ site_settings.login_logo.url }}"
+                         alt="Logo"
+                         class="h-10 w-10 object-contain rounded-lg">
+                {% endif %}
+                <h1 class="text-3xl font-bold font-heading text-white">
+                    vetri<span class="text-secondary text-sm ml-1 align-top relative top-1">bills</span>
+                </h1>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto sidebar-scroll">
+            {% with sub=global_branch.subscription %}
+            {% if sub and sub.is_active %}
+                {% if request.user.role == 'admin' %}
+                    <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors mb-2 {% if request.resolver_match.url_name == 'dashboard' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">⊞</span> Dashboard
+                    </a>
+                    <a href="{% url 'billing_pos' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors {% if request.resolver_match.url_name == 'billing_pos' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">🧾</span> Billing
+                    </a>
+                    <a href="{% url 'inventory_list' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors {% if request.resolver_match.url_name == 'inventory_list' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">📦</span> Inventory
+                    </a>
+                    <a href="{% url 'invoice_list' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors {% if request.resolver_match.url_name == 'invoice_list' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">📄</span> Invoices
+                    </a>
+                    <a href="{% url 'sales_report' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors {% if request.resolver_match.url_name == 'sales_report' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">📈</span> Sales Report
+                    </a>
+                    <a href="{% url 'settings' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors mt-4 {% if request.resolver_match.url_name == 'settings' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">⚙️</span> Settings
+                    </a>
+
+                {% elif request.user.role == 'cashier' %}
+                    <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors mb-2 {% if request.resolver_match.url_name == 'dashboard' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">⊞</span> Dashboard
+                    </a>
+                    <a href="{% url 'billing_pos' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors {% if request.resolver_match.url_name == 'billing_pos' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                        <span class="w-5 h-5 mr-3">🧾</span> Billing
+                    </a>
+                {% endif %}
+            {% else %}
+                <div class="px-4 py-3 mb-4 bg-red-900/30 border border-red-700/40 rounded-lg">
+                    <p class="text-red-300 text-xs font-medium leading-relaxed">
+                        {% if sub %}
+                            ⚠️ Plan expired. Renew to restore access.
+                        {% else %}
+                            ⚠️ No active plan. Purchase to unlock.
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if request.user.role == 'admin' %}
+                <a href="{% url 'plans_page' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors {% if request.resolver_match.url_name == 'plans_page' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="w-5 h-5 mr-3">💳</span> Plans
+                </a>
+                {% endif %}
+
+            {% endif %}
+            {% endwith %}
+        </nav>
+        
+        <div class="p-6 border-t border-gray-700">
+            <button onclick="toggleLogoutModal()" class="w-full flex items-center px-4 py-2 text-gray-400 hover:text-red-400 transition-colors text-sm font-medium focus:outline-none">
+                <span class="w-5 h-5 mr-3">🚪</span> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden w-full">
+        
+        <header class="bg-white shadow-sm z-10 px-4 md:px-8 py-4 flex justify-between items-center border-b border-[#E5E7EB] relative">
+            
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-[#F97316] focus:outline-none p-1">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold font-heading text-textmain truncate max-w-[150px] sm:max-w-none">
+                        {% if branch_context %}{{ branch_context.name }}{% elif global_branch %}{{ global_branch.name }}{% else %}Headquarters{% endif %}
+                    </h1>
+                    <p class="text-xs md:text-sm text-gray-500 truncate max-w-[150px] sm:max-w-none">
+                        {% if branch_context %}{{ branch_context.address }}{% elif global_branch %}{{ global_branch.address }}{% else %}Global Systems{% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 md:space-x-4 relative">
+                
+                {% if request.user.role == 'admin' %}
+                <div class="relative">
+                    <button onclick="toggleNotifications()" id="notifButton" class="w-[36px] h-[36px] md:w-[42px] md:h-[42px] bg-white border border-[#E5E7EB] rounded-[10px] md:rounded-[12px] flex items-center justify-center hover:bg-gray-50 transition relative focus:outline-none">
+                        <svg class="w-[18px] h-[18px] md:w-[20px] md:h-[20px] text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        
+                        {% if admin_notif_count > 0 %}
+                        <div id="notifBadge" class="absolute -top-1 -right-1 md:-top-1.5 md:-right-1.5 bg-[#FF0000] text-white text-[9px] md:text-[10px] font-bold w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm transition-opacity">
+                            {{ admin_notif_count }}
+                        </div>
+                        {% endif %}
+                    </button>
+
+                    <div id="notificationDropdown" class="absolute right-0 mt-3 w-[280px] md:w-[320px] bg-white border border-gray-100 rounded-xl shadow-xl hidden z-50 overflow-hidden transform transition-all">
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                            <span class="font-bold text-gray-700 text-sm">Alerts & Notifications</span>
+                            {% if admin_notif_count > 0 %}
+                                <button onclick="markAllAsRead()" class="text-[11px] font-bold text-[#F97316] hover:text-orange-600 transition">Mark all as read</button>
+                            {% endif %}
+                        </div>
+                        <div class="max-h-64 overflow-y-auto">
+                            {% for notif in admin_notifications %}
+                                <div class="notif-item px-4 py-4 border-b border-gray-50 text-sm font-medium text-[#1F2937] hover:bg-gray-50 transition cursor-pointer flex items-start gap-3">
+                                    <div class="mt-0.5"><span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span></div>
+                                    <div class="notif-text flex-1">{{ notif }}</div>
+                                </div>
+                            {% empty %}
+                                <div class="px-4 py-6 text-sm text-gray-400 text-center">You're all caught up! No active alerts.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <a href="{% url 'profile' %}" class="flex items-center gap-2 md:gap-3 border border-[#E5E7EB] rounded-full pl-1 md:pl-1.5 pr-2 md:pr-5 py-1 bg-white cursor-pointer hover:bg-gray-50 transition shadow-sm {% if request.resolver_match.url_name == 'profile' %}ring-2 ring-orange-100 border-orange-200{% endif %}">
+                    
+                    <div class="w-[30px] h-[30px] md:w-[34px] md:h-[34px] rounded-full overflow-hidden bg-[#F97316] text-white flex items-center justify-center font-bold text-[12px] md:text-[14px] shrink-0">
+                        {% if global_branch.logo %}
+                            <img src="{{ global_branch.logo.url }}" alt="Logo" class="w-full h-full object-cover">
+                        {% elif branch_context and branch_context.logo %}
+                            <img src="{{ branch_context.logo.url }}" alt="Logo" class="w-full h-full object-cover">
+                        {% else %}
+                            {{ request.user.full_name|default:request.user.username|make_list|first|upper }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="hidden sm:block leading-tight">
+                        <p class="font-bold text-[#1F2937] text-[13px] md:text-[14px] capitalize truncate max-w-[100px]">{{ request.user.full_name|default:request.user.username }}</p>
+                        <p class="text-[11px] md:text-[12px] text-[#2563EB] font-semibold mt-0.5">{{ request.user.get_role_display|default:"Cashier" }}</p>
+                    </div>
+                </a>
+
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-bgmain w-full">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <div id="logoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 sm:p-8 shadow-2xl relative text-center transform scale-100 transition-transform">
+            
+            <h2 class="text-2xl font-bold font-heading text-[#1F2937] mb-4">Logout</h2>
+            
+            <p class="text-[#1F2937] font-medium text-base mb-2">
+                Are you sure you want to log out of Vetri Bills?
+            </p>
+            <p class="text-sm text-gray-400 mb-8 max-w-[260px] mx-auto leading-relaxed">
+                Make sure all billing and transactions are saved before exiting.
+            </p>
+            
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <button onclick="toggleLogoutModal()" class="flex-1 bg-white border border-[#E5E7EB] hover:bg-gray-50 text-[#1F2937] font-bold py-3 px-4 rounded-xl transition-colors shadow-sm text-sm sm:text-base">
+                    Cancel
+                </button>
+                <a href="{% url 'logout' %}" class="flex-1 bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-sm transition-colors block text-center text-sm sm:text-base">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Mobile Sidebar Toggle ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 300);
+            }
+        }
+
+        // --- Notification UI Toggle ---
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
+
+        // --- Logout Modal Toggle ---
+        function toggleLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // --- Close dropdowns when clicking outside ---
+        document.addEventListener('click', function(event) {
+            const button = document.getElementById('notifButton');
+            const dropdown = document.getElementById('notificationDropdown');
+            
+            if (button && dropdown) {
+                if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+
+        // --- Mark As Read Logic (Frontend Session Hash) ---
+        const currentNotifsHash = "{{ admin_notifications|join:'||'|escapejs }}";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const storedHash = localStorage.getItem('vetribills_read_notifs');
+            
+            if (currentNotifsHash && storedHash === currentNotifsHash) {
+                const badge = document.getElementById('notifBadge');
+                if (badge) badge.style.display = 'none';
+
+                document.querySelectorAll('.notif-item').forEach(item => {
+                    item.classList.replace('text-[#1F2937]', 'text-gray-500');
+                    item.classList.replace('font-medium', 'font-normal');
+                    const dot = item.querySelector('.animate-ping').parentElement;
+                    if(dot) dot.style.display = 'none';
+                });
+            }
+        });
+
+        function markAllAsRead() {
+            localStorage.setItem('vetribills_read_notifs', currentNotifsHash);
+            
+            const badge = document.getElementById('notifBadge');
+            if (badge) badge.style.display = 'none';
+
+            document.querySelectorAll('.notif-item').forEach(item => {
+                item.classList.replace('text-[#1F2937]', 'text-gray-500');
+                item.classList.replace('font-medium', 'font-normal');
+                const dot = item.querySelector('.animate-ping').parentElement;
+                if(dot) dot.style.display = 'none';
+            });
+        }
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

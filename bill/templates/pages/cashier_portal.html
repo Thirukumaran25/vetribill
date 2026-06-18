@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-[1200px] w-full mx-auto pb-10">
+
+    <div class="mb-4 sm:mb-6">
+        <h2 class="text-2xl sm:text-3xl font-bold font-heading text-[#1F2937]">Dashboard</h2>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">Welcome back! Manage billing and track today's sales.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        
+        <div class="bg-[#699DF7] rounded-2xl p-5 sm:p-6 text-white shadow-sm relative">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Today Sales</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold font-heading mb-3 sm:mb-4">₹ {{ today_sales|floatformat:0 }}</h3>
+                    <p class="text-[11px] sm:text-xs font-medium">
+                        {% if sales_diff_pct > 0 %}+{% endif %}{{ sales_diff_pct|floatformat:0 }}% from yesterday
+                    </p>
+                </div>
+                <div class="bg-white/20 p-2 sm:p-2.5 rounded-xl shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-[#FB9392] rounded-2xl p-5 sm:p-6 text-white shadow-sm relative">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Bills Today</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold font-heading mb-3 sm:mb-4">{{ bills_today }}</h3>
+                    <p class="text-[11px] sm:text-xs font-medium">{{ pending_bills }} pending payments</p>
+                </div>
+                <div class="bg-white/20 p-2 sm:p-2.5 rounded-xl shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-[#FCB274] rounded-2xl p-5 sm:p-6 text-white shadow-sm relative">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Cash Sales</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold font-heading mb-3 sm:mb-4">₹ {{ cash_sales|floatformat:0 }}</h3>
+                    <p class="text-[11px] sm:text-xs font-medium">{{ cash_sales_pct|floatformat:0 }}% of total sales</p>
+                </div>
+                <div class="bg-white/20 p-2 sm:p-2.5 rounded-xl shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-[#4D6DE4] rounded-2xl p-5 sm:p-6 text-white shadow-sm relative">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium mb-1 sm:mb-2">UPI / Card Sales</p>
+                    <h3 class="text-2xl sm:text-3xl font-bold font-heading mb-3 sm:mb-4">₹ {{ upi_card_sales|floatformat:0 }}</h3>
+                    <p class="text-[11px] sm:text-xs font-medium">{{ upi_card_sales_pct|floatformat:0 }}% of total sales</p>
+                </div>
+                <div class="bg-white/20 p-2 sm:p-2.5 rounded-xl shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-6 sm:mb-8 flex">
+        <a href="{% url 'billing_pos' %}" class="w-full sm:w-auto justify-center inline-flex items-center bg-[#F97316] hover:bg-orange-600 text-white px-6 py-3.5 sm:py-3 rounded-xl font-bold transition-colors shadow-sm text-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Create New Bill
+        </a>
+    </div>
+
+    <div class="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-[#E5E7EB]">
+        <div class="flex justify-between items-center mb-6 sm:mb-8">
+            <h3 class="text-lg sm:text-xl font-bold font-heading text-[#1F2937]">Today Sales</h3>
+            <a href="{% url 'invoice_list' %}" class="text-[#F97316] hover:text-orange-600 font-bold text-sm flex items-center shrink-0">
+                View all 
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                    <tr class="border-b-2 border-gray-100 text-sm font-bold text-[#1F2937]">
+                        <th class="pb-4 px-4 font-body whitespace-nowrap">Invoice ID</th>
+                        <th class="pb-4 px-4 font-body whitespace-nowrap">Customer Name</th>
+                        <th class="pb-4 px-4 font-body whitespace-nowrap">Date</th>
+                        <th class="pb-4 px-4 font-body whitespace-nowrap">Time</th>
+                        <th class="pb-4 px-4 font-body whitespace-nowrap">Amount</th>
+                        <th class="pb-4 px-4 font-body whitespace-nowrap">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in recent_activities %}
+                    <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                        <td class="py-4 sm:py-5 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.invoice_number }}</td>
+                        <td class="py-4 sm:py-5 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.customer.name|default:"Walk-in" }}</td>
+                        <td class="py-4 sm:py-5 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.created_at|date:"Y-m-d" }}</td>
+                        <td class="py-4 sm:py-5 px-4 text-sm text-gray-700 whitespace-nowrap">{{ invoice.created_at|time:"H:i A" }}</td>
+                        <td class="py-4 sm:py-5 px-4 text-sm text-gray-700 whitespace-nowrap">₹{{ invoice.grand_total|floatformat:0 }}</td>
+                        <td class="py-4 sm:py-5 px-4 text-sm whitespace-nowrap">
+                            {% if invoice.status == 'Paid' %}
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-[#D1FAE5] text-[#10B981]">Paid</span>
+                            {% elif invoice.status == 'Pending' %}
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-[#FFEDD5] text-[#F97316]">Pending</span>
+                            {% else %}
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-[#FEE2E2] text-[#EF4444]">{{ invoice.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-8 sm:py-10 text-center text-gray-500 text-sm">No sales recorded today. Click "Create New Bill" to start.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

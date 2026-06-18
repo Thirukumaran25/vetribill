@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-[1100px] pb-20">
+
+    <!-- Header -->
+    <div class="mb-10 text-center">
+        <h2 class="text-3xl font-bold font-heading text-[#1F2937]">Choose Your Plan</h2>
+        <p class="text-gray-500 mt-2 text-sm">Recharge anytime. Access continues until validity expires.</p>
+    </div>
+
+    <!-- Current Plan Banner -->
+    {% if current_sub and current_sub.is_active %}
+    <div class="bg-[#D1FAE5] border border-[#10B981] rounded-2xl p-5 mb-10 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-[#10B981] rounded-xl flex items-center justify-center text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold text-[#065F46]">Active Plan: {{ current_sub.plan.name }}</p>
+                <p class="text-sm text-[#047857]">
+                    Valid till {{ current_sub.end_date|date:"d M Y" }}
+                    &nbsp;·&nbsp; {{ current_sub.days_remaining }} days remaining
+                </p>
+            </div>
+        </div>
+        <span class="bg-[#10B981] text-white text-xs font-bold px-4 py-1.5 rounded-full">Active</span>
+    </div>
+
+    {% elif current_sub %}
+    <div class="bg-[#FEE2E2] border border-[#EF4444] rounded-2xl p-5 mb-10 flex items-center gap-4">
+        <div class="w-10 h-10 bg-[#EF4444] rounded-xl flex items-center justify-center text-white">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold text-[#991B1B]">Plan Expired — {{ current_sub.plan.name }}</p>
+            <p class="text-sm text-[#B91C1C]">Expired on {{ current_sub.end_date|date:"d M Y" }}. Recharge to restore access.</p>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="bg-[#FFF7ED] border border-[#F97316] rounded-2xl p-5 mb-10 flex items-center gap-4">
+        <div class="w-10 h-10 bg-[#F97316] rounded-xl flex items-center justify-center text-white">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-bold text-[#92400E]">No active plan</p>
+            <p class="text-sm text-[#B45309]">Purchase a plan below to unlock all features.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Plan Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for item in plans_data %}
+        {% with plan=item.obj %}
+        <div class="bg-white rounded-2xl border {% if current_sub and current_sub.plan.id == plan.id and current_sub.is_active %}border-[#10B981] ring-2 ring-[#10B981]/20{% else %}border-[#E5E7EB]{% endif %} shadow-sm p-8 flex flex-col relative overflow-hidden transition-shadow hover:shadow-md">
+
+            {% if current_sub and current_sub.plan.id == plan.id and current_sub.is_active %}
+            <div class="absolute top-4 right-4">
+                <span class="bg-[#10B981] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide">Current</span>
+            </div>
+            {% endif %}
+
+            <!-- Plan Name & Price -->
+            <div class="mb-6">
+                <h3 class="text-xl font-bold font-heading text-[#1F2937] mb-1">{{ plan.name }}</h3>
+                <div class="flex items-end gap-1 mt-3">
+                    <span class="text-4xl font-bold text-[#1F2937]">₹{{ plan.price|floatformat:0 }}</span>
+                    <span class="text-gray-400 text-sm mb-1.5">/ {{ plan.validity_days }} days</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">
+                    ≈ ₹{{ plan.price|floatformat:0 }} for {{ plan.validity_days }} days access
+                </p>
+            </div>
+
+            <!-- Divider -->
+            <div class="w-full h-px bg-[#F3F4F6] mb-6"></div>
+
+            <!-- Features List -->
+            <ul class="space-y-3 mb-8 flex-1">
+                {% for feature in item.features_list %}
+                <li class="flex items-center gap-2 text-sm text-[#4B5563]">
+                    <svg class="w-4 h-4 text-[#10B981] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    {{ feature }}
+                </li>
+                {% endfor %}
+            </ul>
+
+            <!-- CTA Button -->
+            {% if request.user.role == 'admin' %}
+                {% if current_sub and current_sub.plan.id == plan.id and current_sub.is_active %}
+                <button
+                    onclick="initPayment({{ plan.id }}, '{{ plan.name }}', {{ plan.price }})"
+                    class="w-full bg-[#F9FAFB] border-2 border-[#10B981] text-[#10B981] font-bold py-3 rounded-xl text-sm hover:bg-green-50 transition">
+                    🔄 Renew Plan
+                </button>
+                {% else %}
+                <button
+                    onclick="initPayment({{ plan.id }}, '{{ plan.name }}', {{ plan.price }})"
+                    class="w-full bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm">
+                    Buy Now — ₹{{ plan.price|floatformat:0 }}
+                </button>
+                {% endif %}
+            {% else %}
+            <div class="w-full bg-gray-100 text-gray-400 font-bold py-3 rounded-xl text-sm text-center cursor-not-allowed select-none">
+                Admin purchase only
+            </div>
+            {% endif %}
+
+        </div>
+        {% endwith %}
+
+        {% empty %}
+        <div class="col-span-3 text-center py-20 text-gray-400">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+            </div>
+            <p class="text-lg font-medium">No plans available yet</p>
+            <p class="text-sm mt-2">Admin can add plans from the Django admin panel.</p>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- Payment Processing Overlay -->
+<div id="paymentOverlay" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-8 text-center shadow-2xl max-w-sm w-full mx-4">
+        <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <svg class="w-7 h-7 text-[#F97316]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+            </svg>
+        </div>
+        <p class="font-bold text-[#1F2937] text-lg">Processing Payment...</p>
+        <p class="text-sm text-gray-400 mt-2">Please wait while we verify your payment.</p>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-10 text-center shadow-2xl max-w-sm w-full mx-4">
+        <div class="w-16 h-16 bg-[#D1FAE5] rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg class="w-8 h-8 text-[#10B981]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-[#1F2937] mb-2">Payment Successful!</h3>
+        <p id="successMessage" class="text-sm text-gray-500 mb-6">Your plan has been activated.</p>
+        <button onclick="window.location.href='/dashboard/'"
+            class="w-full bg-[#F97316] hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition">
+            Go to Dashboard
+        </button>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-10 text-center shadow-2xl max-w-sm w-full mx-4">
+        <div class="w-16 h-16 bg-[#FEE2E2] rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg class="w-8 h-8 text-[#EF4444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-[#1F2937] mb-2">Payment Failed</h3>
+        <p id="errorMessage" class="text-sm text-gray-500 mb-6">Something went wrong. Please try again.</p>
+        <button onclick="document.getElementById('errorModal').classList.add('hidden')"
+            class="w-full bg-[#EF4444] hover:bg-red-600 text-white font-bold py-3 rounded-xl transition">
+            Try Again
+        </button>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const RAZORPAY_KEY = "{{ razorpay_key_id }}";
+const CSRF_TOKEN   = "{{ csrf_token }}";
+
+async function initPayment(planId, planName, planPrice) {
+    try {
+        // Step 1: Create Razorpay order on backend
+        const res = await fetch("{% url 'create_plan_order' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF_TOKEN
+            },
+            body: JSON.stringify({ plan_id: planId })
+        });
+
+        const order = await res.json();
+        if (!res.ok) throw new Error(order.error || 'Failed to create order');
+
+        // Step 2: Open Razorpay checkout modal
+        const options = {
+            key: RAZORPAY_KEY,
+            amount: order.amount,
+            currency: 'INR',
+            name: 'Vetri Bills',
+            description: planName + ' Plan',
+            order_id: order.order_id,
+            prefill: {
+                name:    order.user_name,
+                email:   order.user_email,
+                contact: order.user_phone
+            },
+            theme: { color: '#F97316' },
+            handler: async function(response) {
+                // Step 3: Show processing overlay
+                document.getElementById('paymentOverlay').classList.remove('hidden');
+
+                try {
+                    const verifyRes = await fetch("{% url 'payment_success' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': CSRF_TOKEN
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id:   response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature:  response.razorpay_signature,
+                            plan_id: planId
+                        })
+                    });
+
+                    const result = await verifyRes.json();
+                    document.getElementById('paymentOverlay').classList.add('hidden');
+
+                    if (result.success) {
+                        document.getElementById('successMessage').innerText = result.message;
+                        document.getElementById('successModal').classList.remove('hidden');
+                    } else {
+                        document.getElementById('errorMessage').innerText = result.error || 'Verification failed.';
+                        document.getElementById('errorModal').classList.remove('hidden');
+                    }
+
+                } catch (verifyErr) {
+                    document.getElementById('paymentOverlay').classList.add('hidden');
+                    document.getElementById('errorMessage').innerText = 'Network error during verification.';
+                    document.getElementById('errorModal').classList.remove('hidden');
+                }
+            },
+            modal: {
+                ondismiss: function() {
+                    console.log('Razorpay modal closed by user.');
+                }
+            }
+        };
+
+        const rzp = new Razorpay(options);
+
+        rzp.on('payment.failed', function(response) {
+            document.getElementById('errorMessage').innerText =
+                response.error.description || 'Payment failed. Please try again.';
+            document.getElementById('errorModal').classList.remove('hidden');
+        });
+
+        rzp.open();
+
+    } catch (err) {
+        document.getElementById('errorMessage').innerText = err.message;
+        document.getElementById('errorModal').classList.remove('hidden');
+        console.error(err);
+    }
+}
+</script>
+{% endblock %}
