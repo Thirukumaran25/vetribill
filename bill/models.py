@@ -102,6 +102,7 @@ class User(AbstractUser):
 # 2. PRODUCT CATALOG & INVENTORY SUPPLY
 # ==========================================
 class Category(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100)
     
     def __str__(self):
@@ -122,6 +123,7 @@ class Supplier(models.Model):
 class Product(models.Model):
     STATUS_CHOICES = (('Active', 'Active'), ('Archived', 'Archived'))
     product_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=200)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
     barcode = models.CharField(max_length=100, blank=True, null=True)
@@ -138,6 +140,7 @@ class Product(models.Model):
 
 
 class Customer(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=15, unique=True)
     email = models.EmailField(blank=True, null=True)
@@ -153,6 +156,7 @@ class Invoice(models.Model):
 
     invoice_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     invoice_number = models.CharField(max_length=30, unique=True, editable=False)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     cashier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -166,14 +170,14 @@ class Invoice(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.invoice_number:
-            # Fetch the first branch to get the custom prefix
-            branch = Branch.objects.first()
-            prefix = branch.invoice_prefix if branch and branch.invoice_prefix else "INV"
-            
+            prefix = "INV"
+            if self.branch and self.branch.invoice_prefix:
+                prefix = self.branch.invoice_prefix
+
             current_year = timezone.now().strftime('%Y')
             random_slug = uuid.uuid4().hex[:5].upper()
             self.invoice_number = f"{prefix}-{current_year}-{random_slug}"
-            
+
         super().save(*args, **kwargs)
 
 class InvoiceItem(models.Model):
@@ -202,8 +206,8 @@ class LedgerEntry(models.Model):
 
 class Coupon(models.Model):
     DISCOUNT_CHOICES = (('Flat', 'Flat'), ('Percentage', 'Percentage'))
-    
-    code = models.CharField(max_length=50, unique=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
+    code = models.CharField(max_length=50)
     description = models.CharField(max_length=255)
     discount_type = models.CharField(max_length=20, choices=DISCOUNT_CHOICES, default='Flat')
     discount_value = models.DecimalField(max_digits=10, decimal_places=2)

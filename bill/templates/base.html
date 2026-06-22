@@ -53,8 +53,12 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-primary text-white flex flex-col rounded-tr-3xl rounded-br-3xl shadow-lg transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0">
         <div class="p-6 flex items-center justify-between border-b border-gray-700">
             <div class="flex items-center justify-center gap-3 mb-4">
-                {% if site_settings.login_logo %}
+                {% if site_settings and site_settings.login_logo %}
                     <img src="{{ site_settings.login_logo.url }}"
+                         alt="Logo"
+                         class="h-10 w-10 object-contain rounded-lg">
+                {% elif branch_context and branch_context.logo %}
+                    <img src="{{ branch_context.logo.url }}"
                          alt="Logo"
                          class="h-10 w-10 object-contain rounded-lg">
                 {% endif %}
@@ -68,7 +72,9 @@
         </div>
         
         <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto sidebar-scroll">
-            {% with sub=global_branch.subscription %}
+            {% with branch=branch_context %}
+            {% with sub=branch.subscription %}
+            
             {% if sub and sub.is_active %}
                 {% if request.user.role == 'admin' %}
                     <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-2.5 rounded-lg font-medium text-sm transition-colors mb-2 {% if request.resolver_match.url_name == 'dashboard' %}bg-secondary text-white{% else %}text-gray-300 hover:bg-gray-800 hover:text-white{% endif %}">
@@ -116,6 +122,8 @@
                 {% endif %}
 
             {% endif %}
+            
+            {% endwith %}
             {% endwith %}
         </nav>
         
@@ -137,10 +145,10 @@
 
                 <div>
                     <h1 class="text-lg md:text-xl font-bold font-heading text-textmain truncate max-w-[150px] sm:max-w-none">
-                        {% if branch_context %}{{ branch_context.name }}{% elif global_branch %}{{ global_branch.name }}{% else %}Headquarters{% endif %}
+                        {% if branch_context %}{{ branch_context.name }}{% else %}Headquarters{% endif %}
                     </h1>
                     <p class="text-xs md:text-sm text-gray-500 truncate max-w-[150px] sm:max-w-none">
-                        {% if branch_context %}{{ branch_context.address }}{% elif global_branch %}{{ global_branch.address }}{% else %}Global Systems{% endif %}
+                        {% if branch_context %}{{ branch_context.address }}{% else %}Global Systems{% endif %}
                     </p>
                 </div>
             </div>
@@ -180,12 +188,10 @@
                 </div>
                 {% endif %}
 
+            {% if request.user.role == 'admin' %}
                 <a href="{% url 'profile' %}" class="flex items-center gap-2 md:gap-3 border border-[#E5E7EB] rounded-full pl-1 md:pl-1.5 pr-2 md:pr-5 py-1 bg-white cursor-pointer hover:bg-gray-50 transition shadow-sm {% if request.resolver_match.url_name == 'profile' %}ring-2 ring-orange-100 border-orange-200{% endif %}">
-                    
                     <div class="w-[30px] h-[30px] md:w-[34px] md:h-[34px] rounded-full overflow-hidden bg-[#F97316] text-white flex items-center justify-center font-bold text-[12px] md:text-[14px] shrink-0">
-                        {% if global_branch.logo %}
-                            <img src="{{ global_branch.logo.url }}" alt="Logo" class="w-full h-full object-cover">
-                        {% elif branch_context and branch_context.logo %}
+                        {% if branch_context and branch_context.logo %}
                             <img src="{{ branch_context.logo.url }}" alt="Logo" class="w-full h-full object-cover">
                         {% else %}
                             {{ request.user.full_name|default:request.user.username|make_list|first|upper }}
@@ -197,7 +203,23 @@
                         <p class="text-[11px] md:text-[12px] text-[#2563EB] font-semibold mt-0.5">{{ request.user.get_role_display|default:"Cashier" }}</p>
                     </div>
                 </a>
-
+            {% else %}
+                <div class="flex items-center gap-2 md:gap-3 border border-[#E5E7EB] rounded-full pl-1 md:pl-1.5 pr-2 md:pr-5 py-1 bg-white shadow-sm">
+                    <div class="w-[30px] h-[30px] md:w-[34px] md:h-[34px] rounded-full overflow-hidden bg-[#F97316] text-white flex items-center justify-center font-bold text-[12px] md:text-[14px] shrink-0">
+                        {% if branch_context and branch_context.logo %}
+                            <img src="{{ branch_context.logo.url }}" alt="Logo" class="w-full h-full object-cover">
+                        {% else %}
+                            {{ request.user.full_name|default:request.user.username|make_list|first|upper }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="hidden sm:block leading-tight">
+                        <p class="font-bold text-[#1F2937] text-[13px] md:text-[14px] capitalize truncate max-w-[100px]">{{ request.user.full_name|default:request.user.username }}</p>
+                        <p class="text-[11px] md:text-[12px] text-[#2563EB] font-semibold mt-0.5">{{ request.user.get_role_display|default:"Cashier" }}</p>
+                    </div>
+                </div>
+            {% endif %}
+                
             </div>
         </header>
 
